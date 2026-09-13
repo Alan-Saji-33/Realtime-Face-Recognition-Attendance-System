@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_title }} - Smart Face Recognition Attendance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #7c3aed;
+            --accent: #f59e0b;
+            --dark: #0f172a;
+            --light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: var(--light);
+            overflow-x: hidden;
+            color: var(--dark);
+        }
+
+        /* Navbar Options */
+        .navbar {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.85);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 15px 0;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 24px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-brand i {
+            -webkit-text-fill-color: var(--primary);
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+            color: white;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding-top: 80px;
+            background: radial-gradient(circle at top right, rgba(124, 58, 237, 0.1), transparent 40%),
+                radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.1), transparent 40%);
+        }
+
+        .hero-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            filter: blur(60px);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 10s infinite ease-in-out;
+        }
+
+        .shape-1 {
+            top: 10%;
+            left: -5%;
+            width: 400px;
+            height: 400px;
+            background: rgba(37, 99, 235, 0.3);
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            bottom: 10%;
+            right: -5%;
+            width: 500px;
+            height: 500px;
+            background: rgba(124, 58, 237, 0.2);
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-30px) scale(1.05);
+            }
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 25px;
+            color: var(--dark);
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: #475569;
+            margin-bottom: 35px;
+            line-height: 1.6;
+            max-width: 550px;
+        }
+
+        .btn-get-started {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            background: white;
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .section-title p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .feature-card {
+            background: var(--light);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.4s;
+            height: 100%;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(124, 58, 237, 0.05));
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            background: white;
+            border-color: rgba(37, 99, 235, 0.1);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 25px;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+            transition: transform 0.4s;
+        }
+
+        .feature-card:hover .icon-box {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            color: #64748b;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* Glassmorphism Graphic placeholder */
+        .hero-graphic {
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            transform: rotateY(-15deg) rotateX(5deg);
+            transition: transform 0.5s ease;
+        }
+
+        .glass-panel:hover {
+            transform: rotateY(-5deg) rotateX(2deg);
+        }
+
+        .glass-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 20px;
+        }
+
+        .glass-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .glass-info h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .glass-info p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .glass-stat {
+            background: white;
+            padding: 15px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            transition: transform 0.3s;
+        }
+
+        .glass-stat:hover {
+            transform: translateX(10px);
+        }
+
+        .glass-stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .glass-stat-icon.success {
+            background: #d1fae5;
+            color: #10b981;
+        }
+
+        .glass-stat-icon.primary {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .glass-stat-text h5 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .glass-stat-text p {
+            margin: 0;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .floating-badge {
+            position: absolute;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: bounce 3s infinite ease-in-out;
+        }
+
+        .badge-1 {
+            top: -20px;
+            right: -20px;
+            color: var(--success);
+        }
+
+        .badge-2 {
+            bottom: 20px;
+            left: -40px;
+            color: var(--primary);
+            animation-delay: 1.5s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .footer p {
+            margin: 0;
+            opacity: 0.6;
+        }
+
+        @media (max-width: 992px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero {
+                text-align: center;
+            }
+
+            .hero-subtitle {
+                margin: 0 auto 30px;
+            }
+
+            .hero-graphic {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-fingerprint"></i>
+                {{ app_title }}
+            </a>
+            <div class="ms-auto">
+                <a href="/login" class="btn btn-login">
+                    <i class="fas fa-sign-in-alt me-2"></i> Log In
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+        </div>
+
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="hero-title">
+                        Next-Generation <br>
+                        <span>Face Recognition</span> <br>
+                        Attendance System
+                    </h1>
+                    <p class="hero-subtitle">
+                        Automate tracking securely and efficiently. Eliminate buddy punching, paper registers, and human
+                        error with our AI-powered biometric student tracking platform.
+                    </p>
+                    <a href="/login" class="btn btn-login btn-get-started btn-lg py-3 px-5">
+                        Get Started <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="col-lg-6 hero-graphic">
+                    <div class="glass-panel">
+                        <div class="floating-badge badge-1">
+                            <i class="fas fa-check-circle"></i> 99.9% Accuracy
+                        </div>
+                        <div class="floating-badge badge-2">
+                            <i class="fas fa-bolt"></i>
+                            <0.5s Detection </div>
+
+                                <div class="glass-header">
+                                    <div class="glass-avatar"><i class="fas fa-camera"></i></div>
+                                    <div class="glass-info">
+                                        <h4>Live Tracking Active</h4>
+                                        <p><i class="fas fa-circle text-success me-1"></i> Recording Period 1</p>
+                                    </div>
+                                </div>
+
+                                <div class="glass-stat">
+                                    <div class="glass-stat-icon success"><i class="fas fa-user-check"></i></div>
+                                    <div class="glass-stat-text">
+                                        <h5>Student Identified</h5>
+                                        <p>Alan Saji • Computer Application</p>
+                                    </div>
+                                    <div class="ms-auto fw-bold text-success">Present</div>
+                                </div>
+
+                                <div class="glass-stat">
+                                    <div class="glass-stat-icon primary"><i class="fas fa-clock"></i></div>
+                                    <div class="glass-stat-text">
+                                        <h5>Timestamp Recorded</h5>
+                                        <p>Today at 09:05 AM</p>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>Why Choose {{ app_title }}?</h2>
+                <p>Powerful tools designed for Administrators, Teachers, and Students.</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="icon-box"><i class="fas fa-camera"></i></div>
+                        <h3>AI Face Recognition</h3>
+                        <p>High-speed, contactless attendance marking utilizing advanced facial detection and encodings.
+                            Supports bulk processing.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="icon-box"><i class="fas fa-shield-alt"></i></div>
+                        <h3>Role-Based Access</h3>
+                        <p>Dedicated modules for Administrators to manage users, Teachers to handle departments, and
+                            Students to track their history.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="icon-box"><i class="fas fa-chart-pie"></i></div>
+                        <h3>Deep Analytics</h3>
+                        <p>Visual dashboards with comprehensive statistics, absentee tracking, graphical charts, and
+                            one-click data reports.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="icon-box"><i class="fas fa-file-invoice"></i></div>
+                        <h3>Claims Management</h3>
+                        <p>Built-in workflow for students to raise attendance claims for missed periods, verified and
+                            resolved instantly by teachers.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="icon-box"><i class="fas fa-bell"></i></div>
+                        <h3>Smart Alerts</h3>
+                        <p>Automated email notifications dynamically dispatched to absentees and stakeholders keeping
+                            everyone informed securely.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="icon-box"><i class="fas fa-users-cog"></i></div>
+                        <h3>Department Scoping</h3>
+                        <p>Staff members operate within restricted departmental limits providing granular control inside
+                            macro-organizations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 {{ app_title }}. All rights reserved.Developed By:Alan Saji</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', function () {
+            if (window.scrollY > 50) {
+                document.querySelector('.navbar').style.boxShadow = '0 10px 30px rgba(0,0,0,0.05)';
+            } else {
+                document.querySelector('.navbar').style.boxShadow = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

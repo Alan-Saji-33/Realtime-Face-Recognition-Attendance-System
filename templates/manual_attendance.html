@@ -37,7 +37,6 @@
             overflow-x: hidden;
         }
 
-        /* Sidebar Styles */
         .sidebar {
             position: fixed;
             left: 0;
@@ -46,100 +45,60 @@
             height: 100vh;
             background: var(--dark);
             color: white;
+            z-index: 1000;
             display: flex;
             flex-direction: column;
-            z-index: 100;
         }
 
-        .sidebar-content {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-        }
-
-        .sidebar-content::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .sidebar-content::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-        }
-
-        .sidebar-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            padding: 25px 20px;
+        .sidebar-profile {
+            padding: 30px 20px;
             text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .sidebar-header .logo {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
-        .sidebar-header h3 {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .sidebar-header p {
-            font-size: 12px;
-            opacity: 0.8;
-            margin: 0;
-        }
-
-        .user-info {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-        }
-
-        .user-avatar {
+        .profile-avatar {
             width: 70px;
             height: 70px;
-            background: var(--secondary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 30px;
+            font-weight: 800;
+            color: white;
+            margin: 0 auto 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-info h5 {
+            margin: 0;
             font-weight: 700;
-            margin: 0 auto 12px;
-            border: 3px solid rgba(255, 255, 255, 0.2);
+            color: white;
         }
 
-        .user-name {
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 16px;
-        }
-
-        .user-role {
-            display: inline-block;
-            padding: 4px 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+        .profile-info p {
+            margin: 5px 0 0;
             font-size: 11px;
-            text-transform: capitalize;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .nav-menu {
-            flex: 1;
-            padding: 15px;
+            padding: 25px 15px;
+            flex-grow: 1;
+            overflow-y: auto;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
+            padding: 14px 18px;
             color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
-            border-radius: 8px;
-            margin-bottom: 4px;
+            border-radius: 14px;
+            margin-bottom: 8px;
             transition: all 0.3s;
         }
 
@@ -147,34 +106,39 @@
         .nav-item.active {
             background: rgba(255, 255, 255, 0.1);
             color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .nav-item i {
             width: 24px;
-            font-size: 16px;
-            text-align: center;
+            margin-right: 12px;
+            font-size: 18px;
         }
 
-        .nav-item span {
-            margin-left: 12px;
-            font-size: 13px;
-            font-weight: 500;
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .logout-btn {
-            margin: 15px;
-            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
             background: rgba(239, 68, 68, 0.1);
             color: #ff6b6b;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
             text-decoration: none;
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
+            border-radius: 14px;
+            font-weight: 700;
+            transition: all 0.3s;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .logout-btn:hover {
+            background: var(--danger);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
         }
 
         .logout-btn:hover {
@@ -695,26 +659,24 @@
 
 <body>
     <div class="sidebar">
-        <div class="sidebar-content">
-            <div class="sidebar-header">
-                <div class="logo">🎓</div>
-                <h3>Attendance System</h3>
-                <p>Face Recognition</p>
+        <div class="sidebar-profile">
+            <div class="profile-avatar">{{ user_data.name[0] }}</div>
+            <div class="profile-info">
+                <h5>{{ user_data.name }}</h5>
+                <p>{{ user_data.role }} | {{ user_data.department }}</p>
             </div>
-            <div class="user-info">
-                <div class="user-avatar">T</div>
-                <div class="user-name">Teacher</div>
-                <span class="user-role">teacher</span>
-            </div>
-            <div class="nav-menu">
-                <a href="/dashboard" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
-                <a href="/department-students" class="nav-item"><i class="fas fa-users"></i><span>My Students</span></a>
-                <a href="/manual-attendance" class="nav-item active"><i class="fas fa-pen"></i><span>Manual
-                        Attendance</span></a>
-                <a href="/mark-attendance" class="nav-item"><i class="fas fa-camera"></i><span>Face
-                        Attendance</span></a>
-                <a href="/attendance" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Report</span></a>
-            </div>
+        </div>
+        <div class="nav-menu">
+            <a href="/dashboard" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="/claims" class="nav-item"><i class="fas fa-file-invoice"></i><span>Claims</span></a>
+            <a href="/department-students" class="nav-item"><i class="fas fa-users"></i><span>Student
+                    Management</span></a>
+            <a href="/manual-attendance" class="nav-item active"><i class="fas fa-pen"></i><span>Manual
+                    Attendance</span></a>
+            <a href="/mark-attendance" class="nav-item"><i class="fas fa-camera"></i><span>Face Attendance</span></a>
+            <a href="/attendance" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Reports</span></a>
+        </div>
+        <div class="sidebar-footer">
             <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
     </div>
@@ -764,9 +726,11 @@
         </div>
 
         <!-- Period Info Banner -->
-        <div class="alert alert-info" style="position: static; margin-bottom: 20px; display: flex; align-items: center;">
+        <div class="alert alert-info"
+            style="position: static; margin-bottom: 20px; display: flex; align-items: center;">
             <i class="fas fa-info-circle me-2"></i>
-            <span>Currently viewing attendance for <strong>Period <span id="currentPeriodDisplay">1</span></strong>. Each student can have only one status per period.</span>
+            <span>Currently viewing attendance for <strong>Period <span id="currentPeriodDisplay">1</span></strong>.
+                Each student can have only one status per period.</span>
         </div>
 
         <!-- Stats Cards -->
@@ -930,7 +894,7 @@
 
         function getMarkedByIcon(markedBy) {
             if (!markedBy) return '';
-            
+
             markedBy = markedBy.toLowerCase();
             if (markedBy.includes('teacher')) {
                 return '<span class="marked-by marked-by-teacher"><i class="fas fa-chalkboard-teacher"></i> By Teacher</span>';
@@ -963,7 +927,7 @@
                 const students = await studentsRes.json();
 
                 // Fetch attendance for selected date AND period
-                const attendanceRes = await fetch(`/api/attendance/date?date=${date}&period=${period}`, {
+                const attendanceRes = await fetch(`/api/attendance?date=${date}&period=${period}`, {
                     headers: { 'Accept': 'application/json' }
                 });
 
@@ -1007,7 +971,7 @@
                     var student = students[i];
                     var attendanceRecord = attendanceMap[student.student_id];
                     var status = attendanceRecord ? attendanceRecord.status : 'pending';
-                    
+
                     let statusHtml = '';
                     let presentDisabled = '';
                     let absentDisabled = '';
@@ -1072,7 +1036,7 @@
                     '<p>' + error.message + '</p>' +
                     '<button class="btn btn-primary mt-3" onclick="loadStudents()">Try Again</button>' +
                     '</td></tr>';
-                
+
                 showAlert('Error loading students: ' + error.message, 'danger');
             }
         }
@@ -1089,7 +1053,7 @@
             try {
                 var response = await fetch('/api/attendance/manual', {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
@@ -1113,7 +1077,7 @@
                 if (result.success) {
                     // Update the status cell with detailed info
                     var markedByHtml = '<span class="marked-by marked-by-teacher"><i class="fas fa-chalkboard-teacher"></i> By Teacher (You)</span>';
-                    
+
                     if (status === 'Present') {
                         statusCell.innerHTML = '<div class="status-info">' +
                             '<span class="badge-present"><i class="fas fa-check-circle"></i> Present</span>' +
@@ -1197,13 +1161,13 @@
             var alertDiv = document.getElementById('alertMessage');
             alertDiv.style.display = 'flex';
             alertDiv.className = 'alert alert-' + type;
-            
+
             // Set icon based on type
             var icon = 'info-circle';
             if (type === 'success') icon = 'check-circle';
             if (type === 'danger') icon = 'exclamation-circle';
             if (type === 'warning') icon = 'exclamation-triangle';
-            
+
             alertDiv.innerHTML = '<i class="fas fa-' + icon + '"></i>' + message;
 
             setTimeout(function () {

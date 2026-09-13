@@ -1,7 +1,12 @@
 import cv2
 import numpy as np
+import base64
+import math
+import json
+from datetime import datetime
 from deepface import DeepFace
 from config import DEEPFACE_MODEL, DEEPFACE_DETECTOR, FACE_MATCH_THRESHOLD
+from collections import deque
 
 
 class FaceRecognitionModule:
@@ -113,7 +118,7 @@ class FaceRecognitionModule:
                     img_path=image,
                     model_name=self.model_name,
                     detector_backend=self.detector_backend,
-                    enforce_detection=False
+                    enforce_detection=True  # Reject images with no detectable face
                 )
             else:
                 # If image is numpy array
@@ -121,16 +126,21 @@ class FaceRecognitionModule:
                     img_path=image,
                     model_name=self.model_name,
                     detector_backend=self.detector_backend,
-                    enforce_detection=False
+                    enforce_detection=True  # Reject images with no detectable face
                 )
 
             if embedding_objs and len(embedding_objs) > 0:
+                # Get the most confident face
                 embedding = embedding_objs[0]['embedding']
                 print(f"✅ Embedding generated (dimension: {len(embedding)})")
                 return embedding
             else:
                 print("❌ No face detected in image")
                 return None
+        except ValueError as ve:
+            # DeepFace raises ValueError when enforce_detection is True and no face is found
+            print("❌ No face detected.")
+            return None
         except Exception as e:
             print(f"❌ Error generating embedding: {e}")
             return None
@@ -143,7 +153,7 @@ class FaceRecognitionModule:
                 img2_path=img2,
                 model_name=self.model_name,
                 detector_backend=self.detector_backend,
-                enforce_detection=False
+                enforce_detection=True
             )
 
             distance = result['distance']
@@ -151,6 +161,9 @@ class FaceRecognitionModule:
 
             print(f"Face verification: {'✅ Match' if verified else '❌ No match'} (distance: {distance:.4f})")
             return verified, distance
+        except ValueError:
+            print("❌ No face detected.")
+            return False, 1.0
         except Exception as e:
             print(f"❌ Error verifying faces: {e}")
             return False, 1.0
@@ -298,7 +311,7 @@ class FaceRecognitionModule:
 
         marked_students = set()  # Track already marked students
         frame_count = 0
-        check_interval = 3  # Check every 3 frames for much faster recognition
+        check_interval = 2  # Check every 2 frames for much faster recognition (was 3)
         consecutive_no_match = 0
         max_no_match_before_retry = 10
 
@@ -341,18 +354,27 @@ class FaceRecognitionModule:
 
                             if success:
                                 marked_students.add(match_id)
+                                recent_names.appendleft(match_id) # Add to recent activity
                                 print(f"✅ Attendance marked for: {match_id}")
                                 consecutive_no_match = 0
 
                                 # Show success message on frame
                                 cv2.putText(frame, f"Marked: {match_id}", 
-                                           (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                                           (10, 220), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
                                 cv2.imshow('Attendance Marking', frame)
                                 cv2.waitKey(800)  # Show for 0.8 seconds - faster feedback
                             else:
-                                # Already marked, add to set anyway to skip
-                                marked_students.add(match_id)
+                                # Show "Already Marked" message on frame
                                 print(f"ℹ️ Already marked: {match_id}")
+                                cv2.putText(frame, f"Already Marked: {match_id}", 
+                                           (10, 220), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 165, 255), 2)
+                                cv2.imshow('Attendance Marking', frame)
+                                cv2.waitKey(1000) # Show for 1 second
+                                
+                                # Already marked, add to set anyway to skip in current session
+                                marked_students.add(match_id)
+                                if match_id not in recent_names:
+                                    recent_names.appendleft(f"{match_id} (Already)")
                         else:
                             consecutive_no_match += 1
                             if consecutive_no_match >= max_no_match_before_retry:
@@ -377,5 +399,14 @@ class FaceRecognitionModule:
         return len(marked_students)
 
 
-# Global face recognition instance
+# Global face recognition instance and activity tracking
+recent_names = deque(maxlen=5)
 face_recognizer = FaceRecognitionModule()
+
+def show_toast(*args, **kwargs):
+    """Placeholder for show_toast to prevent NameError if utils.show_toast is not available or suitable"""
+    try:
+        from utils import show_toast as st
+        return st(*args, **kwargs)
+    except:
+        print(f"Toast: {args[1] if len(args) > 1 else args[0]}")

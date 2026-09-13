@@ -15,9 +15,8 @@
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            --info: #3b82f6;
             --dark: #1e293b;
-            --light: #f8fafc;
+            --info: #0ea5e9;
             --sidebar-width: 280px;
         }
 
@@ -31,10 +30,9 @@
             font-family: 'Segoe UI', Roboto, sans-serif;
             background: var(--light);
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        /* Sidebar Styles */
+        /* ── Sidebar ── */
         .sidebar {
             position: fixed;
             left: 0;
@@ -43,175 +41,149 @@
             height: 100vh;
             background: var(--dark);
             color: white;
+            z-index: 1000;
             display: flex;
             flex-direction: column;
-            z-index: 100;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
         }
 
-        .sidebar-content {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-        }
-
-        .sidebar-content::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .sidebar-content::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-        }
-
-        .sidebar-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            padding: 25px 20px;
+        .sidebar-profile {
+            padding: 30px 20px;
             text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
         }
 
-        .sidebar-header .logo {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
-        .sidebar-header h3 {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .sidebar-header p {
-            font-size: 12px;
-            opacity: 0.8;
-            margin: 0;
-        }
-
-        .user-info {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-        }
-
-        .user-avatar {
-            width: 70px;
-            height: 70px;
-            background: var(--primary);
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            margin: 0 auto 15px;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-info h5 {
+            margin: 0;
             font-weight: 700;
-            margin: 0 auto 12px;
-            border: 3px solid rgba(255, 255, 255, 0.2);
+            font-size: 18px;
         }
 
-        .user-name {
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 16px;
-        }
-
-        .user-role {
-            display: inline-block;
-            padding: 4px 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+        .profile-info p {
+            margin: 5px 0 0;
             font-size: 11px;
-            text-transform: capitalize;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
         }
 
         .nav-menu {
-            flex: 1;
-            padding: 15px;
-        }
-
-        .nav-section {
-            margin-bottom: 20px;
-        }
-
-        .nav-section-title {
-            font-size: 10px;
-            text-transform: uppercase;
-            color: #888;
-            padding: 0 12px;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
+            padding: 25px 15px;
+            flex-grow: 1;
+            overflow-y: auto;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
+            padding: 14px 18px;
             color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
-            border-radius: 8px;
-            margin-bottom: 4px;
-            transition: all 0.3s;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .nav-item:hover,
         .nav-item.active {
             background: rgba(255, 255, 255, 0.1);
             color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transform: translateX(5px);
         }
 
         .nav-item i {
             width: 24px;
-            font-size: 16px;
+            margin-right: 12px;
+            font-size: 18px;
             text-align: center;
         }
 
         .nav-item span {
-            margin-left: 12px;
-            font-size: 13px;
             font-weight: 500;
+            font-size: 14px;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .logout-btn {
-            margin: 15px;
-            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
             background: rgba(239, 68, 68, 0.1);
             color: #ff6b6b;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
             text-decoration: none;
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
         .logout-btn:hover {
             background: var(--danger);
             color: white;
-            border-color: var(--danger);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
         }
 
-        /* Main Content */
+        /* ── Main Content ── */
         .main-content {
             margin-left: var(--sidebar-width);
-            padding: 30px;
+            padding: 30px 40px;
             min-height: 100vh;
         }
 
+        /* Welcome Banner style */
         .page-header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px 40px;
+            margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            position: relative;
+            overflow: visible;
+            border: 1px solid rgba(0, 0, 0, 0.02);
             flex-wrap: wrap;
             gap: 15px;
         }
 
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+
         .page-title {
-            font-size: 28px;
-            font-weight: 700;
+            font-size: 24px;
+            font-weight: 800;
             color: var(--dark);
             margin: 0;
             display: flex;
@@ -220,117 +192,224 @@
         }
 
         .date-range-badge {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 500;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            border: 1px solid #e2e8f0;
         }
 
         .export-buttons {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             flex-wrap: wrap;
+        }
+
+        .export-group {
+            position: relative;
         }
 
         .btn-export {
             padding: 10px 20px;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 600;
             border: none;
             transition: all 0.3s;
+            color: white;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
         }
 
         .btn-export:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .btn-export i {
-            margin-right: 8px;
+        .export-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 200px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            border: 1px solid #eef2f6;
+            margin-top: 10px;
         }
 
-        /* Stats Cards */
-        .stats-row {
+        .export-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            transform: rotate(45deg);
+            border-top: 1px solid #eef2f6;
+            border-left: 1px solid #eef2f6;
+        }
+
+        .export-group:hover .export-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-title {
+            grid-column: span 4;
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .period-btn {
+            height: 35px;
+            width: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .period-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .period-all {
+            grid-column: span 4;
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 5px;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px dashed #cbd5e1;
+        }
+
+        .period-all:hover {
+            background: var(--primary);
+            color: white;
+            border-style: solid;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 24px;
+            margin-bottom: 35px;
         }
 
         .stat-card {
             background: white;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             display: flex;
             align-items: center;
-            transition: transform 0.3s;
+            gap: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
         }
 
         .stat-icon {
-            width: 60px;
-            height: 60px;
+            width: 65px;
+            height: 65px;
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            margin-right: 20px;
+            font-size: 26px;
         }
 
-        .stat-icon.primary {
-            background: rgba(37, 99, 235, 0.1);
+        .stat-icon.blue {
+            background: #eff6ff;
             color: var(--primary);
         }
 
-        .stat-icon.success {
-            background: rgba(16, 185, 129, 0.1);
+        .stat-icon.green {
+            background: #ecfdf5;
             color: var(--success);
         }
 
-        .stat-icon.danger {
-            background: rgba(239, 68, 68, 0.1);
+        .stat-icon.red {
+            background: #fef2f2;
             color: var(--danger);
         }
 
-        .stat-icon.warning {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
+        .stat-icon.purple {
+            background: #faf5ff;
+            color: var(--secondary);
         }
 
-        .stat-content h4 {
+        .stat-info h4 {
+            margin: 0 0 5px 0;
             font-size: 13px;
-            color: #6b7280;
-            margin-bottom: 5px;
+            color: #64748b;
             text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
-        .stat-value {
+        .stat-val {
             font-size: 32px;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--dark);
-            line-height: 1.2;
+            line-height: 1;
         }
 
         /* Filter Section */
         .filter-section {
             background: white;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 35px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.02);
         }
 
         .filter-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+            gap: 20px;
             align-items: flex-end;
         }
 
@@ -339,160 +418,187 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: var(--dark);
-            font-size: 13px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .form-select,
         .form-control {
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
             font-size: 14px;
+            background: #f8fafc;
+            transition: all 0.3s;
         }
 
         .form-select:focus,
         .form-control:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            outline: none;
+            background: white;
         }
 
         .btn-filter {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
+            padding: 14px 20px;
+            border-radius: 12px;
             font-weight: 600;
             width: 100%;
             transition: all 0.3s;
         }
 
         .btn-filter:hover {
-            background: var(--secondary);
             transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
         }
 
         .btn-clear {
-            background: #6b7280;
+            background: #64748b;
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
+            padding: 14px 20px;
+            border-radius: 12px;
             font-weight: 600;
             width: 100%;
             transition: all 0.3s;
         }
 
         .btn-clear:hover {
-            background: #4b5563;
+            background: #475569;
             transform: translateY(-2px);
         }
 
-        /* Card Styles */
-        .card {
+        /* Universal Card styles */
+        .b-card {
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            border: none;
-            margin-bottom: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.02);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 30px;
         }
 
-        .card-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            border: none;
-            padding: 20px 25px;
+        .b-card-header {
+            padding: 22px 25px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
+            background: #fff;
         }
 
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: white;
+        .b-card-title {
             margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--dark);
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .card-header .results-count {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+        .b-card-body {
+            padding: 25px;
+            flex-grow: 1;
+        }
+
+        .results-count {
+            background: #f1f5f9;
+            color: var(--dark);
             padding: 5px 15px;
             border-radius: 30px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .card-body {
-            padding: 25px;
-        }
-
-        /* Table Styles */
-        .table {
-            margin-bottom: 0;
-        }
-
-        .table thead th {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 15px;
             font-size: 13px;
+            font-weight: 700;
+            border: 1px solid #e2e8f0;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        .table-custom th {
+            padding: 0 20px 10px;
+            color: #94a3b8;
             font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
         }
 
-        .table tbody td {
-            padding: 15px;
-            vertical-align: middle;
-            font-size: 14px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .table tbody tr:hover {
+        .table-custom td {
+            padding: 16px 20px;
             background: #f8fafc;
+            font-size: 14px;
+            color: var(--dark);
+            font-weight: 500;
+            vertical-align: middle;
+        }
+
+        .table-custom tr td:first-child {
+            border-radius: 12px 0 0 12px;
+        }
+
+        .table-custom tr td:last-child {
+            border-radius: 0 12px 12px 0;
+        }
+
+        .table-custom tr {
+            transition: transform 0.2s;
+        }
+
+        .table-custom tr:hover td {
+            background: #f1f5f9;
         }
 
         .badge-present {
             background: #d1fae5;
             color: #065f46;
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: 30px;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 12px;
             display: inline-block;
+            border: 1px solid #34d399;
         }
 
         .badge-absent {
             background: #fee2e2;
             color: #991b1b;
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: 30px;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 12px;
             display: inline-block;
+            border: 1px solid #f87171;
         }
 
         .empty-state {
             text-align: center;
             padding: 60px 40px;
-            color: #6b7280;
+            color: #64748b;
         }
 
         .empty-state i {
             font-size: 64px;
             margin-bottom: 20px;
-            opacity: 0.5;
+            opacity: 0.3;
+            color: var(--primary);
         }
 
         .empty-state h4 {
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--dark);
             margin-bottom: 10px;
         }
@@ -502,7 +608,25 @@
             margin-bottom: 0;
         }
 
-        /* Summary Cards */
+        .btn-sm-custom {
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-sm-custom:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
         .summary-section {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -511,25 +635,57 @@
         }
 
         .summary-item {
-            background: var(--light);
-            border-radius: 12px;
+            background: #f8fafc;
+            border-radius: 16px;
             padding: 15px;
             text-align: center;
+            border: 1px solid #e2e8f0;
         }
 
         .summary-label {
             font-size: 12px;
-            color: #6b7280;
+            color: #64748b;
             margin-bottom: 5px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         .summary-value {
-            font-size: 20px;
-            font-weight: 700;
+            font-size: 24px;
+            font-weight: 800;
             color: var(--dark);
         }
 
-        /* Responsive */
+        /* Modal Styles */
+        .modal-content {
+            border-radius: 24px;
+            border: none;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border-radius: 0;
+            padding: 25px;
+            border-bottom: none;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+            opacity: 0.8;
+        }
+
+        .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 35px;
+        }
+
         @media (max-width: 992px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -537,14 +693,11 @@
 
             .main-content {
                 margin-left: 0;
+                padding: 20px;
             }
         }
 
         @media (max-width: 768px) {
-            .main-content {
-                padding: 20px;
-            }
-
             .filter-row {
                 grid-template-columns: 1fr;
             }
@@ -564,31 +717,22 @@
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
-        <div class="sidebar-content">
-            <div class="sidebar-header">
-                <div class="logo">🎓</div>
-                <h3>Attendance System</h3>
-                <p>Face Recognition</p>
+        <div class="sidebar-profile">
+            <div class="profile-avatar">A</div>
+            <div class="profile-info">
+                <h5>Administrator</h5>
+                <p>admin</p>
             </div>
-            <div class="user-info">
-                <div class="user-avatar">A</div>
-                <div class="user-name">Administrator</div>
-                <span class="user-role">admin</span>
-            </div>
-            <div class="nav-menu">
-                <div class="nav-section">
-                    <div class="nav-section-title">Navigation</div>
-                    <a href="/dashboard" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
-                    <a href="/students" class="nav-item"><i class="fas fa-users"></i><span>Student Management</span></a>
-                    <a href="/manual-attendance" class="nav-item"><i class="fas fa-pen"></i><span>Manual
-                            Attendance</span></a>
-                    <a href="/mark-attendance" class="nav-item"><i class="fas fa-camera"></i><span>Mark
-                            Attendance</span></a>
-                    <a href="/attendance" class="nav-item active"><i class="fas fa-clipboard-list"></i><span>Attendance
-                            Reports</span></a>
-                </div>
-            </div>
-            <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+        <div class="nav-menu">
+            <a href="/dashboard" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="/students" class="nav-item"><i class="fas fa-user-graduate"></i><span>Students</span></a>
+            <a href="/teachers" class="nav-item"><i class="fas fa-chalkboard-teacher"></i><span>Teachers</span></a>
+            <a href="/attendance" class="nav-item active"><i class="fas fa-file-alt"></i><span>Attendance
+                    Reports</span></a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
         </div>
     </div>
 
@@ -601,49 +745,90 @@
                 <span class="date-range-badge" id="dateRange">Today</span>
             </div>
             <div class="export-buttons">
-                <button class="btn-export" style="background: var(--success); color: white;"
-                    onclick="exportAttendance('present')">
-                    <i class="fas fa-file-excel"></i> Present List
-                </button>
-                <button class="btn-export" style="background: var(--danger); color: white;"
-                    onclick="exportAttendance('absent')">
-                    <i class="fas fa-file-excel"></i> Absent List
-                </button>
-                <button class="btn-export" style="background: var(--primary); color: white;"
-                    onclick="exportAttendance('all')">
-                    <i class="fas fa-file-excel"></i> Complete Report
-                </button>
+                <!-- Present List Export -->
+                <div class="export-group">
+                    <button class="btn-export" style="background: var(--success); color: white;" onclick="exportAttendance('present', 'all')">
+                        <i class="fas fa-file-excel"></i> Present List
+                    </button>
+                    <div class="export-dropdown">
+                        <div class="dropdown-title">Select Period</div>
+                        <div class="period-btn" onclick="exportAttendance('present', 1)">1</div>
+                        <div class="period-btn" onclick="exportAttendance('present', 2)">2</div>
+                        <div class="period-btn" onclick="exportAttendance('present', 3)">3</div>
+                        <div class="period-btn" onclick="exportAttendance('present', 4)">4</div>
+                        <div class="period-btn" onclick="exportAttendance('present', 5)">5</div>
+                        <div class="period-btn" onclick="exportAttendance('present', 6)">6</div>
+                        <div class="period-btn" onclick="exportAttendance('present', 7)">7</div>
+                        <div class="period-all" onclick="exportAttendance('present', 'all')">Combined Multi-Period</div>
+                    </div>
+                </div>
+
+                <!-- Absent List Export -->
+                <div class="export-group">
+                    <button class="btn-export" style="background: var(--danger); color: white;" onclick="exportAttendance('absent', 'all')">
+                        <i class="fas fa-file-excel"></i> Absent List
+                    </button>
+                    <div class="export-dropdown">
+                        <div class="dropdown-title">Select Period</div>
+                        <div class="period-btn" onclick="exportAttendance('absent', 1)">1</div>
+                        <div class="period-btn" onclick="exportAttendance('absent', 2)">2</div>
+                        <div class="period-btn" onclick="exportAttendance('absent', 3)">3</div>
+                        <div class="period-btn" onclick="exportAttendance('absent', 4)">4</div>
+                        <div class="period-btn" onclick="exportAttendance('absent', 5)">5</div>
+                        <div class="period-btn" onclick="exportAttendance('absent', 6)">6</div>
+                        <div class="period-btn" onclick="exportAttendance('absent', 7)">7</div>
+                        <div class="period-all" onclick="exportAttendance('absent', 'all')">Combined Multi-Period</div>
+                    </div>
+                </div>
+
+                <!-- Complete Report Export -->
+                <div class="export-group">
+                    <button class="btn-export" style="background: var(--primary); color: white;" onclick="exportAttendance('all', 'all')">
+                        <i class="fas fa-file-excel"></i> Complete Report
+                    </button>
+                    <div class="export-dropdown">
+                        <div class="dropdown-title">Select Period</div>
+                        <div class="period-btn" onclick="exportAttendance('all', 1)">1</div>
+                        <div class="period-btn" onclick="exportAttendance('all', 2)">2</div>
+                        <div class="period-btn" onclick="exportAttendance('all', 3)">3</div>
+                        <div class="period-btn" onclick="exportAttendance('all', 4)">4</div>
+                        <div class="period-btn" onclick="exportAttendance('all', 5)">5</div>
+                        <div class="period-btn" onclick="exportAttendance('all', 6)">6</div>
+                        <div class="period-btn" onclick="exportAttendance('all', 7)">7</div>
+                        <div class="period-all" onclick="exportAttendance('all', 'all')">Full Day Summary</div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Stats Cards -->
-        <div class="stats-row">
+        <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon primary"><i class="fas fa-users"></i></div>
-                <div class="stat-content">
+                <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+                <div class="stat-info">
                     <h4>Total Students</h4>
-                    <div class="stat-value" id="totalStudents">0</div>
+                    <div class="stat-val" id="totalStudents">0</div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
-                <div class="stat-content">
+                <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
                     <h4>Present Today</h4>
-                    <div class="stat-value" id="presentToday">0</div>
+                    <div class="stat-val" id="presentToday">0</div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon danger"><i class="fas fa-times-circle"></i></div>
-                <div class="stat-content">
+                <div class="stat-icon red"><i class="fas fa-times-circle"></i></div>
+                <div class="stat-info">
                     <h4>Absent Today</h4>
-                    <div class="stat-value" id="absentToday">0</div>
+                    <div class="stat-val" id="absentToday">0</div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon warning"><i class="fas fa-chart-line"></i></div>
-                <div class="stat-content">
+                <div class="stat-icon purple"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-info">
                     <h4>Attendance Rate</h4>
-                    <div class="stat-value" id="attendanceRate">0%</div>
+                    <div class="stat-val" id="attendanceRate">0%</div>
                 </div>
             </div>
         </div>
@@ -705,15 +890,15 @@
         </div>
 
         <!-- Attendance Table Card -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">
-                    <i class="fas fa-list"></i>
+        <div class="b-card">
+            <div class="b-card-header">
+                <h5 class="b-card-title">
+                    <i class="fas fa-list text-primary"></i>
                     Attendance Records
                 </h5>
                 <span class="results-count" id="recordCount">0 records</span>
             </div>
-            <div class="card-body">
+            <div class="b-card-body">
                 <div class="summary-section" id="summaryStats" style="display: none;">
                     <div class="summary-item">
                         <div class="summary-label">Present</div>
@@ -816,7 +1001,7 @@
 
         async function loadAllAttendance() {
             try {
-                const response = await fetch('/api/attendance');
+                const response = await fetch('/api/attendance?date=all');
                 if (!response.ok) throw new Error('Failed to fetch attendance');
 
                 const records = await response.json();
@@ -873,7 +1058,7 @@
             document.getElementById('summaryTotal').textContent = records.length;
 
             let html = `
-                <table id="attendanceTable" class="table table-striped">
+                <table id="attendanceTable" class="table-custom">
                     <thead>
                         <tr>
                             <th>Student ID</th>
@@ -889,6 +1074,8 @@
                     <tbody>
             `;
 
+            function fmtDate(d) { if (!d) return ''; const p = String(d).slice(0, 10).split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : d; }
+
             records.forEach(record => {
                 const statusBadge = record.status === 'Present'
                     ? '<span class="badge-present"><i class="fas fa-check-circle me-1"></i>Present</span>'
@@ -900,12 +1087,12 @@
                         <td>${record.name || 'N/A'}</td>
                         <td>${record.department || 'N/A'}</td>
                         <td>Year ${record.year || 'N/A'}</td>
-                        <td>${record.date || 'N/A'}</td>
+                        <td>${fmtDate(record.date) || 'N/A'}</td>
                         <td>${record.time || 'N/A'}</td>
                         <td>${statusBadge}</td>
                         <td>
-                            <button class="btn btn-sm btn-info" onclick="viewDetails('${record.student_id}')">
-                                <i class="fas fa-eye"></i>
+                            <button class="btn-sm-custom" style="background: var(--info); color: white;" onclick="viewDetails('${record.student_id}')">
+                                <i class="fas fa-eye"></i> View
                             </button>
                         </td>
                     </tr>
@@ -1094,7 +1281,7 @@
             modal.show();
         }
 
-        function exportAttendance(status) {
+        function exportAttendance(status, period = 'all') {
             const fromDate = document.getElementById('fromDate').value;
             const toDate = document.getElementById('toDate').value;
             const dept = document.getElementById('deptFilter').value;
@@ -1104,6 +1291,7 @@
             if (toDate) params.set('to_date', toDate);
             if (dept) params.set('department', dept);
             if (status) params.set('status', status);
+            if (period && period !== 'all') params.set('period', period);
 
             window.location.href = '/api/attendance/export?' + params.toString();
         }

@@ -189,13 +189,18 @@ class Database:
             try:
                 if not self.connection:
                     self.connect()
+                else:
+                    try:
+                        self.connection.ping(reconnect=True)
+                    except:
+                        self.connect()
                 
                 cursor = self.connection.cursor(pymysql.cursors.DictCursor)
                 cursor.execute(query, params or ())
                 results = cursor.fetchall()
                 cursor.close()
                 return results if results is not None else []
-            except Error as e:
+            except Exception as e:
                 print(f"Query error (attempt {attempt + 1}/{max_retries}): {e}")
                 self.connect()
                 if attempt == max_retries - 1:
@@ -208,13 +213,18 @@ class Database:
             try:
                 if not self.connection:
                     self.connect()
+                else:
+                    try:
+                        self.connection.ping(reconnect=True)
+                    except:
+                        self.connect()
                 
                 cursor = self.connection.cursor()
                 cursor.execute(query, params or ())
                 self.connection.commit()
                 cursor.close()
                 return True
-            except Error as e:
+            except Exception as e:
                 print(f"Update error (attempt {attempt + 1}/{max_retries}): {e}")
                 self.connect()
                 if attempt == max_retries - 1:
@@ -346,6 +356,11 @@ class Database:
         query = f"DELETE FROM {TABLE_STUDENTS} WHERE id = %s"
         return self.execute_update(query, (id,))
 
+    def get_student_by_pk(self, id):
+        query = f"SELECT * FROM {TABLE_STUDENTS} WHERE id = %s"
+        result = self.execute_query(query, (id,))
+        return result[0] if result else None
+
     def get_all_students(self):
         query = f"SELECT * FROM {TABLE_STUDENTS} ORDER BY name"
         return self.execute_query(query)
@@ -393,7 +408,7 @@ class Database:
         
         return success, "Attendance marked successfully" if success else "Failed to mark attendance"
 
-    def get_attendance(self, date=None, department=None, name=None):
+    def get_attendance(self, date=None, department=None, name=None, from_date=None, to_date=None, period=None):
         query = f"SELECT * FROM {TABLE_ATTENDANCE} WHERE 1=1"
         params = []
 
@@ -402,6 +417,19 @@ class Database:
                 date = date.isoformat()
             query += " AND date = %s"
             params.append(date)
+        
+        if from_date:
+            query += " AND date >= %s"
+            params.append(from_date)
+        
+        if to_date:
+            query += " AND date <= %s"
+            params.append(to_date)
+
+        if period and period != 'all':
+            query += " AND period = %s"
+            params.append(period)
+
         if department:
             query += " AND department LIKE %s"
             params.append(f'%{department}%')
@@ -430,8 +458,8 @@ class Database:
         if total and len(total) > 0:
             total_students = total[0].get('cnt', 0) or 0
 
-        # Get present count
-        present_query = f"SELECT COUNT(*) as cnt FROM {TABLE_ATTENDANCE} WHERE date = %s"
+        # Get present count (unique existing students present at least once today)
+        present_query = f"SELECT COUNT(DISTINCT a.student_id) as cnt FROM {TABLE_ATTENDANCE} a JOIN {TABLE_STUDENTS} s ON a.student_id = s.student_id WHERE a.date = %s AND a.status = 'Present'"
         present = self.execute_query(present_query, (today_str,))
         present_today = 0
         if present and len(present) > 0:
@@ -510,16 +538,40 @@ class Database:
 
     def get_student_attendance_stats(self, student_id):
         """Get attendance statistics for a specific student"""
-        # Get total days student should have attended (from enrollment)
-        total_query = f"SELECT COUNT(DISTINCT date) as total_days FROM {TABLE_ATTENDANCE}"
-        total_result = self.execute_query(total_query)
-        total_days = total_result[0]['total_days'] if total_result else 0
+        # Get student's department to calculate total days for that department only
+        student = self.get_student_by_id(student_id)
+        dept = student.get('department') if student else None
         
-        # Get present days
-        present_query = f"SELECT COUNT(*) as present_days FROM {TABLE_ATTENDANCE} WHERE student_id = %s AND status = 'Present'"
-        present_result = self.execute_query(present_query, (student_id,))
-        present_days = present_result[0]['present_days'] if present_result else 0
+        # Get total days (unique dates)
+        if dept:
+            total_days_query = f"SELECT COUNT(DISTINCT date) as cnt FROM {TABLE_ATTENDANCE} WHERE department = %s"
+            td_res = self.execute_query(total_days_query, (dept,))
+        else:
+            total_days_query = f"SELECT COUNT(DISTINCT date) as cnt FROM {TABLE_ATTENDANCE}"
+            td_res = self.execute_query(total_days_query)
+            
+        total_days = td_res[0].get('cnt', 0) if td_res and td_res[0] else 0
         
+        # Get present days (unique dates student attended at least 1 period)
+        present_days_query = f"SELECT COUNT(DISTINCT date) as cnt FROM {TABLE_ATTENDANCE} WHERE student_id = %s AND status = 'Present'"
+        pd_res = self.execute_query(present_days_query, (student_id,))
+        present_days = pd_res[0].get('cnt', 0) if pd_res and pd_res[0] else 0
+        
+        # Get total PERIODS student's department should have attended
+        if dept:
+            total_periods_query = f"SELECT COUNT(DISTINCT CONCAT(date, '-', period)) as cnt FROM {TABLE_ATTENDANCE} WHERE department = %s"
+            tp_res = self.execute_query(total_periods_query, (dept,))
+        else:
+            total_periods_query = f"SELECT COUNT(DISTINCT CONCAT(date, '-', period)) as cnt FROM {TABLE_ATTENDANCE}"
+            tp_res = self.execute_query(total_periods_query)
+            
+        total_periods = tp_res[0].get('cnt', 0) if tp_res and tp_res[0] else 0
+
+        # Get present PERIODS for student
+        present_periods_query = f"SELECT COUNT(DISTINCT CONCAT(date, '-', period)) as cnt FROM {TABLE_ATTENDANCE} WHERE student_id = %s AND status = 'Present'"
+        pp_res = self.execute_query(present_periods_query, (student_id,))
+        present_periods = pp_res[0].get('cnt', 0) if pp_res and pp_res[0] else 0
+
         # Get today's attendance
         today = datetime.now().date()
         today_str = today.isoformat() if hasattr(today, 'isoformat') else str(today)
@@ -527,15 +579,82 @@ class Database:
         today_result = self.execute_query(today_query, (student_id, today_str))
         marked_today = len(today_result) > 0
         
-        percentage = (present_days / total_days * 100) if total_days > 0 else 0
+        percentage = (present_periods / total_periods * 100) if total_periods > 0 else 0
+        
+        # Format percentage beautifully without trailing .0 if integer
+        percentage = round(percentage, 1)
+        if int(percentage) == percentage:
+            percentage = int(percentage)
         
         return {
             'total_days': total_days,
             'present_days': present_days,
-            'absent_days': total_days - present_days,
-            'percentage': round(percentage, 1),
+            'absent_days': max(0, total_days - present_days),
+            'percentage': percentage,
             'marked_today': marked_today
         }
+
+    def get_student_monthly_stats(self, student_id):
+        """Get attendance grouped by month for chart visualization (Period-based)"""
+        # Get student's department
+        student = self.get_student_by_id(student_id)
+        dept = student.get('department') if student else None
+        
+        # Get present periods per month
+        p_query = f"""
+            SELECT 
+                DATE_FORMAT(date, '%%Y-%%m') as month,
+                COUNT(*) as present_periods
+            FROM {TABLE_ATTENDANCE}
+            WHERE student_id = %s AND status = 'Present'
+            GROUP BY month
+        """
+        p_results = self.execute_query(p_query, (student_id,))
+        p_dict = {r['month']: r['present_periods'] for r in p_results}
+        
+        # Get total periods per month for that department
+        if dept:
+            t_query = f"""
+                SELECT 
+                    DATE_FORMAT(date, '%%Y-%%m') as month,
+                    COUNT(DISTINCT CONCAT(date, '-', period)) as total_periods
+                FROM {TABLE_ATTENDANCE}
+                WHERE department = %s
+                GROUP BY month
+            """
+            t_results = self.execute_query(t_query, (dept,))
+        else:
+            t_query = f"""
+                SELECT 
+                    DATE_FORMAT(date, '%%Y-%%m') as month,
+                    COUNT(DISTINCT CONCAT(date, '-', period)) as total_periods
+                FROM {TABLE_ATTENDANCE}
+                GROUP BY month
+            """
+            t_results = self.execute_query(t_query)
+            
+        final_results = []
+        for r in t_results:
+            month = r['month']
+            total = r['total_periods']
+            present = p_dict.get(month, 0)
+            percentage = round((present / total * 100), 1) if total > 0 else 0
+            
+            # Format month for better display (e.g., Apr 2026)
+            try:
+                date_obj = datetime.strptime(month, '%Y-%m')
+                month_display = date_obj.strftime('%b %Y')
+            except:
+                month_display = month
+                
+            final_results.append({
+                'month': month_display,
+                'percentage': percentage,
+                'total_periods': total,
+                'present_periods': present
+            })
+            
+        return final_results
 
     def mark_attendance_manual(self, student_id, name, department, date, time, status='Present', period=1, marked_by=None):
         """Manually mark attendance (allows marking for any date and period)"""
@@ -594,8 +713,8 @@ class Database:
         total = self.execute_query(total_query, (department,))
         total_students = total[0]['cnt'] if total else 0
         
-        # Get present count for today in department
-        present_query = f"SELECT COUNT(*) as cnt FROM {TABLE_ATTENDANCE} WHERE department = %s AND date = %s"
+        # Get present count for today in department (unique existing students)
+        present_query = f"SELECT COUNT(DISTINCT a.student_id) as cnt FROM {TABLE_ATTENDANCE} a JOIN {TABLE_STUDENTS} s ON a.student_id = s.student_id WHERE a.department = %s AND a.date = %s AND a.status = 'Present'"
         present = self.execute_query(present_query, (department, today_str))
         present_today = present[0]['cnt'] if present else 0
         
@@ -655,7 +774,21 @@ class Database:
     def add_claim(self, student_id, date, period, reason):
         """Add a new attendance claim"""
         query = "INSERT INTO claims (student_id, date, period, reason) VALUES (%s, %s, %s, %s)"
-        return self.execute_update(query, (student_id, date, period, reason))
+        success = self.execute_update(query, (student_id, date, period, reason))
+        
+        if success:
+            # Notify teachers in student's department
+            student = self.get_student_by_id(student_id)
+            if student and student.get('department'):
+                dept = student['department']
+                from config import TABLE_USERS
+                teachers_query = f"SELECT id FROM {TABLE_USERS} WHERE role = 'teacher' AND assigned_department = %s"
+                teachers = self.execute_query(teachers_query, (dept,))
+                for t in teachers:
+                    msg = f"New claim from {student['name']} for {date} Period {period}."
+                    self.add_notification(t['id'], msg, "warning")
+                    
+        return success
 
     def get_claims_by_student(self, student_id):
         """Get all claims for a student"""

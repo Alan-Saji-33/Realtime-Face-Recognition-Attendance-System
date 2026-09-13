@@ -8,7 +8,12 @@ from functools import wraps
 import hashlib
 import json
 import os
+import sys
 from datetime import datetime, timedelta
+
+# Fix emoji/unicode print errors on Windows
+if sys.stdout.encoding and sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 from db import db
 from face_recognition_module import face_recognizer
@@ -18,6 +23,24 @@ app = Flask(__name__)
 app.secret_key = 'face_recognition_attendance_secret_key_2024'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
+# ── Jinja2 filter: format any date as dd/mm/yyyy ──
+def datefmt(value):
+    """Convert YYYY-MM-DD string or date/datetime object to dd/mm/yyyy"""
+    if not value:
+        return ''
+    try:
+        if hasattr(value, 'strftime'):
+            return value.strftime('%d/%m/%Y')
+        s = str(value).strip()[:10]   # take only YYYY-MM-DD part
+        parts = s.split('-')
+        if len(parts) == 3:
+            return f"{parts[2]}/{parts[1]}/{parts[0]}"
+    except Exception:
+        pass
+    return value
+
+app.jinja_env.filters['datefmt'] = datefmt
 
 # Warm up face recognizer on startup
 print("🔄 Initializing face recognition...")
@@ -38,7 +61,7 @@ def login_required(f):
 def index():
     if 'user_id' in session:
         return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
+    return render_template('index.html', app_title=APP_TITLE)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -190,7 +213,11 @@ def dashboard():
     if 'user_id' in session:
         notifications = db.get_notifications(session['user_id'])
     
-    return render_template('dashboard.html', user_data=user_data, stats=stats, trend_data=trend_data, notifications=notifications, app_title=APP_TITLE)
+    from utils import get_display_date
+    if role == 'student':
+        return render_template('student_dashboard.html', user_data=user_data, stats=stats, trend_data=trend_data, notifications=notifications, app_title=APP_TITLE, today=get_display_date())
+    
+    return render_template('dashboard.html', user_data=user_data, stats=stats, trend_data=trend_data, notifications=notifications, app_title=APP_TITLE, today=get_display_date())
 
 
 @app.route('/students')
@@ -205,9 +232,15 @@ def students():
 @app.route('/attendance')
 @login_required
 def attendance():
+    role = session.get('role')
+    user_data = {
+        'name': session.get('name'), 
+        'role': role,
+        'department': session.get('department') or session.get('assigned_department')
+    }
     records = db.get_attendance()
     stats = db.get_attendance_stats()
-    return render_template('attendance.html', records=records, stats=stats, app_title=APP_TITLE)
+    return render_template('attendance.html', records=records, stats=stats, user_data=user_data, app_title=APP_TITLE)
 
 
 @app.route('/mark-attendance')
@@ -215,7 +248,12 @@ def attendance():
 def mark_attendance():
     if session.get('role') == 'student':
         return redirect(url_for('dashboard'))
-    return render_template('mark_attendance.html', app_title=APP_TITLE)
+    user_data = {
+        'name': session.get('name'), 
+        'role': session.get('role'),
+        'department': session.get('department') or session.get('assigned_department')
+    }
+    return render_template('mark_attendance.html', user_data=user_data, app_title=APP_TITLE)
 
 
 # API ENDPOINTS
@@ -249,10 +287,18 @@ def api_students():
     return jsonify(students)
 
 
+@app.route('/api/students/count', methods=['GET'])
+@login_required
+def api_students_count():
+    """Get total students count"""
+    students = db.get_all_students()
+    return jsonify({'total': len(students)})
+
+
 @app.route('/api/student/add', methods=['POST'])
 @login_required
 def api_add_student():
-    if session.get('role') != 'admin':
+    if session.get('role') not in ['admin', 'teacher']:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 403
 
     try:
@@ -270,6 +316,11 @@ def api_add_student():
 
         if not all([student_id, name, roll_no, department, year]):
             return jsonify({'success': False, 'message': 'Missing required fields'})
+
+        # Teachers can only add to their own department
+        if session.get('role') == 'teacher':
+            if department != session.get('assigned_department'):
+                return jsonify({'success': False, 'message': 'You can only add students to your own department'})
 
         # Check for duplicate face only if embedding is provided
         if embedding:
@@ -293,8 +344,15 @@ def api_add_student():
 @app.route('/api/student/delete/<int:student_id>', methods=['DELETE'])
 @login_required
 def api_delete_student(student_id):
-    if session.get('role') != 'admin':
+    if session.get('role') not in ['admin', 'teacher']:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    # Teachers can only delete from their own department
+    if session.get('role') == 'teacher':
+        student = db.get_student_by_pk(student_id)
+        if not student or student['department'] != session.get('assigned_department'):
+            return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
     success = db.delete_student(student_id)
     return jsonify({'success': success})
 
@@ -302,7 +360,7 @@ def api_delete_student(student_id):
 @app.route('/api/student/update', methods=['PUT'])
 @login_required
 def api_update_student():
-    if session.get('role') != 'admin':
+    if session.get('role') not in ['admin', 'teacher']:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 403
     data = request.get_json()
     success = db.update_student(data.get('id'), data.get('name'), data.get('roll_no'), data.get('department'), data.get('year'), data.get('email'), data.get('phone'))
@@ -357,7 +415,7 @@ def api_update_student_face():
 @app.route('/api/face-capture', methods=['POST'])
 @login_required
 def api_capture_face():
-    if session.get('role') != 'admin':
+    if session.get('role') not in ['admin', 'teacher']:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 403
 
     try:
@@ -521,17 +579,20 @@ def api_attendance():
     # Default to today's date if not provided (for dashboard)
     if not date:
         date = datetime.now().date().isoformat()
+    elif date.lower() == 'all':
+        date = None
 
     records = db.get_attendance(date=date, department=department) or []
 
     # Convert datetime/date/time objects to strings for JSON serialization
+    from utils import format_time
     serialized_records = []
     for record in records:
         serialized_record = dict(record)
         if serialized_record.get('date'):
             serialized_record['date'] = str(serialized_record['date'])
         if serialized_record.get('time'):
-            serialized_record['time'] = str(serialized_record['time'])
+            serialized_record['time'] = format_time(serialized_record['time'])
         serialized_records.append(serialized_record)
 
     if status and status != 'All':
@@ -543,13 +604,45 @@ def api_attendance():
     return jsonify(serialized_records)
 
 
+@app.route('/api/attendance/date', methods=['GET'])
+@login_required
+def api_attendance_by_date_path():
+    """Alias for /api/attendance?date=... to support frontend structure"""
+    return api_attendance()
+
+
+@app.route('/api/attendance/today', methods=['GET'])
+@login_required
+def api_attendance_today():
+    """Get today's total attendance records"""
+    records = db.get_today_attendance()
+    from utils import format_time
+    serialized = []
+    for r in records:
+        sr = dict(r)
+        if sr.get('date'): sr['date'] = str(sr['date'])
+        if sr.get('time'): sr['time'] = format_time(sr['time'])
+        serialized.append(sr)
+    return jsonify(serialized)
+
+
 @app.route('/api/attendance/export')
 @login_required
 def api_export_attendance():
     date = request.args.get('date')
+    from_date = request.args.get('from_date')
+    to_date = request.args.get('to_date')
+    department = request.args.get('department')
     status = request.args.get('status', 'all')
+    period = request.args.get('period')
 
-    records = db.get_attendance(date=date)
+    records = db.get_attendance(
+        date=date, 
+        department=department, 
+        from_date=from_date, 
+        to_date=to_date, 
+        period=period
+    )
 
     if status != 'all':
         records = [r for r in records if r.get('status', '').lower() == status.lower()]
@@ -561,17 +654,22 @@ def api_export_attendance():
 
     export_data = []
     for record in records:
+        # Get period name
+        p_val = record.get('period', 'N/A')
+        
         export_data.append([
             record['student_id'],
             record['name'],
             record['department'] or 'N/A',
             str(record['date']),
             str(record['time']),
+            f"Period {p_val}",
             record['status']
         ])
 
-    headers = ['Student ID', 'Name', 'Department', 'Date', 'Time', 'Status']
-    filename = f"attendance_{status}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+    headers = ['Student ID', 'Name', 'Department', 'Date', 'Time', 'Period', 'Status']
+    period_suffix = f"_period{period}" if period and period != 'all' else ""
+    filename = f"attendance_{status}{period_suffix}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
     filepath = export_to_excel(export_data, filename, headers)
 
     if filepath:
@@ -609,7 +707,46 @@ def my_attendance():
     """Student's own attendance view"""
     if session.get('role') != 'student':
         return redirect(url_for('dashboard'))
-    return render_template('my_attendance.html', app_title=APP_TITLE)
+    
+    user_data = {
+        'name': session.get('name'),
+        'role': session.get('role'),
+        'department': session.get('department') or session.get('assigned_department'),
+        'student_id': session.get('student_id')
+    }
+    from utils import get_display_date
+    return render_template('my_attendance.html', user_data=user_data, app_title=APP_TITLE, today=get_display_date())
+
+
+@app.route('/student-hub')
+@login_required
+def student_hub():
+    """Detailed Student Hub Dashboard"""
+    if session.get('role') != 'student':
+        return redirect(url_for('dashboard'))
+    
+    student_id = session.get('student_id')
+    student_info = db.get_student_by_id(student_id)
+    stats = db.get_student_attendance_stats(student_id)
+    claims = db.get_claims_by_student(student_id)
+    notifications = db.get_notifications(session['user_id'])
+    
+    user_data = {
+        'name': session.get('name'),
+        'role': session.get('role'),
+        'department': session.get('department') or session.get('assigned_department'),
+        'student_id': student_id
+    }
+    
+    from utils import get_display_date
+    return render_template('student_hub.html', 
+                          student=student_info, 
+                          user_data=user_data,
+                          stats=stats, 
+                          claims=claims,
+                          notifications=notifications,
+                          today=get_display_date(),
+                          app_title=APP_TITLE)
 
 
 @app.route('/department-students')
@@ -619,11 +756,16 @@ def department_students():
     if session.get('role') != 'teacher':
         return redirect(url_for('dashboard'))
     dept = session.get('assigned_department')
+    user_data = {
+        'name': session.get('name'), 
+        'role': 'teacher',
+        'department': dept
+    }
     if dept:
         students = db.get_students_by_department(dept)
     else:
         students = []
-    return render_template('department_students.html', students=students, department=dept, app_title=APP_TITLE)
+    return render_template('department_students.html', students=students, department=dept, user_data=user_data, app_title=APP_TITLE)
 
 
 @app.route('/manual-attendance')
@@ -633,11 +775,16 @@ def manual_attendance():
     if session.get('role') != 'teacher':
         return redirect(url_for('dashboard'))
     dept = session.get('assigned_department')
+    user_data = {
+        'name': session.get('name'), 
+        'role': 'teacher',
+        'department': dept
+    }
     if dept:
         students = db.get_students_by_department(dept)
     else:
         students = []
-    return render_template('manual_attendance.html', students=students, department=dept, app_title=APP_TITLE)
+    return render_template('manual_attendance.html', students=students, department=dept, user_data=user_data, app_title=APP_TITLE)
 
 
 # ==================== ROLE-BASED API ENDPOINTS ====================
@@ -767,14 +914,14 @@ def api_manual_attendance():
                 return jsonify({'success': False, 'message': 'Cannot mark attendance for other departments'}), 403
         
         # Mark attendance
-        success, message = db.mark_attendance_manual(
+        success, message = db.mark_attendance(
             student['student_id'],
             student['name'],
             student['department'],
             date,
             datetime.now().time(),
-            status=status,
             period=period,
+            status=status,
             marked_by=session.get('name')
         )
 
@@ -819,13 +966,14 @@ def api_student_attendance():
     attendance = db.get_attendance_by_student(student_id)
     
     # Serialize dates
+    from utils import format_time
     serialized = []
     for record in attendance:
         r = dict(record)
         if r.get('date'):
             r['date'] = str(r['date'])
         if r.get('time'):
-            r['time'] = str(r['time'])
+            r['time'] = format_time(r['time'])
         serialized.append(r)
     
     return jsonify(serialized)
@@ -848,6 +996,26 @@ def api_student_attendance_stats():
         return jsonify({'success': False, 'message': 'Student ID required'})
     
     stats = db.get_student_attendance_stats(student_id)
+    return jsonify(stats)
+
+
+@app.route('/api/attendance/student/monthly')
+@login_required
+def api_student_monthly_stats():
+    """Get monthly attendance stats for student"""
+    if session.get('role') not in ['admin', 'teacher', 'student']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+        
+    student_id = request.args.get('student_id')
+    
+    # Students can only view their own stats
+    if session.get('role') == 'student':
+        student_id = session.get('student_id')
+    
+    if not student_id:
+        return jsonify({'success': False, 'message': 'Student ID required'})
+    
+    stats = db.get_student_monthly_stats(student_id)
     return jsonify(stats)
 
 
@@ -889,13 +1057,14 @@ def api_attendance_department():
     records = db.get_attendance_by_department(department, date)
     
     # Serialize
+    from utils import format_time
     serialized = []
     for record in records:
         r = dict(record)
         if r.get('date'):
             r['date'] = str(r['date'])
         if r.get('time'):
-            r['time'] = str(r['time'])
+            r['time'] = format_time(r['time'])
         serialized.append(r)
     
     return jsonify(serialized)
@@ -931,19 +1100,76 @@ def api_departments():
 
 # ==================== CLAIM ROUTES ====================
 
+@app.route('/api/attendance/by-date', methods=['GET'])
+@login_required
+def api_attendance_by_date():
+    """Get student's attendance for a specific date (all 6 periods)"""
+    if session.get('role') != 'student':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+    student_id = session.get('student_id')
+    date = request.args.get('date')
+    if not date or not student_id:
+        return jsonify({'success': False, 'message': 'Missing date or student_id'}), 400
+
+    # Pull records for this student on this date
+    query = "SELECT * FROM attendance WHERE student_id = %s AND date = %s ORDER BY period ASC"
+    records = db.execute_query(query, (student_id, date))
+
+    # Get existing claims for this student on this date (to know which already claimed)
+    claims_query = "SELECT period, status FROM claims WHERE student_id = %s AND date = %s"
+    existing_claims = db.execute_query(claims_query, (student_id, date))
+    claimed_periods = {c['period']: c['status'] for c in existing_claims}
+
+    # Build a dict keyed by period (1-6)
+    period_map = {}
+    for r in records:
+        p = int(r.get('period', 1))
+        period_map[p] = {
+            'period': p,
+            'status': r.get('status', 'Absent'),
+            'marked_by': r.get('marked_by') or 'System',
+            'time': str(r.get('time', '')),
+        }
+
+    # Build the full list of 6 periods, filling gaps as "Not Taken"
+    periods = []
+    for p in range(1, 7):
+        if p in period_map:
+            entry = period_map[p]
+            entry['claim_status'] = claimed_periods.get(p)  # None / 'Pending' / 'Approved' / 'Denied'
+        else:
+            entry = {
+                'period': p,
+                'status': 'Not Taken',
+                'marked_by': None,
+                'time': None,
+                'claim_status': None,
+            }
+        periods.append(entry)
+
+    return jsonify({'success': True, 'date': date, 'periods': periods})
+
 @app.route('/claims')
 @login_required
 def claims():
     """Claims management page"""
     role = session.get('role')
+    user_data = {
+        'name': session.get('name'),
+        'role': role,
+        'department': session.get('department') or session.get('assigned_department'),
+        'student_id': session.get('student_id')
+    }
+    
     if role == 'student':
         student_id = session.get('student_id')
         user_claims = db.get_claims_by_student(student_id)
-        return render_template('claims.html', claims=user_claims, role=role, app_title=APP_TITLE)
+        return render_template('claims.html', user_data=user_data, claims=user_claims, role=role, app_title=APP_TITLE)
     elif role == 'teacher':
         dept = session.get('assigned_department')
         pending_claims = db.get_pending_claims_by_department(dept)
-        return render_template('claims.html', claims=pending_claims, role=role, app_title=APP_TITLE)
+        return render_template('claims.html', user_data=user_data, claims=pending_claims, role=role, app_title=APP_TITLE)
     else:
         return redirect(url_for('dashboard'))
 
@@ -996,8 +1222,76 @@ def api_notifications_read():
     return jsonify({'success': success})
 
 
+@app.route('/api/attendance/finish', methods=['POST'])
+@login_required
+def api_attendance_finish():
+    """Finish attendance session and mark remaining students as absent"""
+    if session.get('role') not in ['admin', 'teacher']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+        
+    try:
+        data = request.get_json()
+        period = data.get('period', 1)
+        department = session.get('assigned_department') or session.get('department')
+        date = datetime.now().date().isoformat()
+        
+        if not department:
+            return jsonify({'success': False, 'message': 'Department not found in session'})
+            
+        # 1. Get all students in this department
+        students = db.get_students_by_department(department)
+        if not students:
+            return jsonify({'success': True, 'message': 'No students found for this department'})
+            
+        # 2. Get students who are already marked present for this period
+        attendance_records = db.get_attendance(date=date, department=department)
+        present_student_ids = {r['student_id'] for r in attendance_records if str(r.get('period')) == str(period)}
+        
+        # 3. Mark remaining students as absent
+        absent_count = 0
+        from utils import send_attendance_email
+        import threading
+        
+        for student in students:
+            if student['student_id'] not in present_student_ids:
+                # Mark as absent if no record exists for this period
+                success, message = db.mark_attendance_manual(
+                    student['student_id'],
+                    student['name'],
+                    student['department'],
+                    date,
+                    datetime.now().time(),
+                    status='Absent',
+                    period=period,
+                    marked_by=session.get('name')
+                )
+                
+                if success:
+                    absent_count += 1
+                    # Send email in background
+                    if student.get('email'):
+                        threading.Thread(
+                            target=send_attendance_email,
+                            args=(student['name'], student['email'], date, period, 'Absent', session.get('name'))
+                        ).start()
+        
+        return jsonify({
+            'success': True, 
+            'message': f'Attendance session finished. {absent_count} students marked absent.',
+            'absent_count': absent_count
+        })
+        
+    except Exception as e:
+        import traceback
+        print(f"Error finishing attendance: {e}")
+        print(traceback.format_exc())
+        return jsonify({'success': False, 'message': str(e)})
+
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    from utils import ensure_directories
+    ensure_directories()
+    
     print("=" * 60)
     print("Face Recognition Attendance System - Web Version")
     print("=" * 60)
@@ -1006,8 +1300,5 @@ if __name__ == '__main__':
     print("Default teacher: username='teacher', password='teacher123'")
     print("Default student: username='student', password='student123'")
     print("=" * 60)
-
-    from utils import ensure_directories
-    ensure_directories()
 
     app.run(debug=True, host='0.0.0.0', port=5000)

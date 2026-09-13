@@ -33,7 +33,6 @@
             overflow-x: hidden;
         }
 
-        /* Sidebar Styles */
         .sidebar {
             position: fixed;
             left: 0;
@@ -42,113 +41,60 @@
             height: 100vh;
             background: var(--dark);
             color: white;
+            z-index: 1000;
             display: flex;
             flex-direction: column;
-            z-index: 100;
         }
 
-        .sidebar-content {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-        }
-
-        .sidebar-content::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .sidebar-content::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-        }
-
-        .sidebar-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            padding: 25px 20px;
+        .sidebar-profile {
+            padding: 30px 20px;
             text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .sidebar-header .logo {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
-        .sidebar-header h3 {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .sidebar-header p {
-            font-size: 12px;
-            opacity: 0.8;
-            margin: 0;
-        }
-
-        .user-info {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-        }
-
-        .user-avatar {
+        .profile-avatar {
             width: 70px;
             height: 70px;
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 30px;
+            font-weight: 800;
+            color: white;
+            margin: 0 auto 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-info h5 {
+            margin: 0;
             font-weight: 700;
-            margin: 0 auto 12px;
-            border: 3px solid rgba(255, 255, 255, 0.2);
+            color: white;
         }
 
-        .user-name {
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 16px;
-        }
-
-        .user-role {
-            display: inline-block;
-            padding: 4px 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+        .profile-info p {
+            margin: 5px 0 0;
             font-size: 11px;
-            text-transform: capitalize;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .nav-menu {
-            flex: 1;
-            padding: 15px;
-        }
-
-        .nav-section {
-            margin-bottom: 20px;
-        }
-
-        .nav-section-title {
-            font-size: 10px;
-            text-transform: uppercase;
-            color: #888;
-            padding: 0 12px;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
+            padding: 25px 15px;
+            flex-grow: 1;
+            overflow-y: auto;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
+            padding: 14px 18px;
             color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
-            border-radius: 8px;
-            margin-bottom: 4px;
+            border-radius: 14px;
+            margin-bottom: 8px;
             transition: all 0.3s;
         }
 
@@ -156,34 +102,39 @@
         .nav-item.active {
             background: rgba(255, 255, 255, 0.1);
             color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .nav-item i {
             width: 24px;
-            font-size: 16px;
-            text-align: center;
+            margin-right: 12px;
+            font-size: 18px;
         }
 
-        .nav-item span {
-            margin-left: 12px;
-            font-size: 13px;
-            font-weight: 500;
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .logout-btn {
-            margin: 15px;
-            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
             background: rgba(239, 68, 68, 0.1);
             color: #ff6b6b;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
             text-decoration: none;
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
+            border-radius: 14px;
+            font-weight: 700;
+            transition: all 0.3s;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .logout-btn:hover {
+            background: var(--danger);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
         }
 
         .logout-btn:hover {
@@ -662,30 +613,24 @@
 
 <body>
     <div class="sidebar">
-        <div class="sidebar-content">
-            <div class="sidebar-header">
-                <div class="logo">🎓</div>
-                <h3>Attendance System</h3>
-                <p>Face Recognition</p>
+        <div class="sidebar-profile">
+            <div class="profile-avatar">{{ user_data.name[0] }}</div>
+            <div class="profile-info">
+                <h5>{{ user_data.name }}</h5>
+                <p>{{ user_data.role }} | {{ user_data.department }}</p>
             </div>
-            <div class="user-info">
-                <div class="user-avatar">A</div>
-                <div class="user-name">Administrator</div>
-                <span class="user-role">admin</span>
-            </div>
-            <div class="nav-menu">
-                <div class="nav-section">
-                    <div class="nav-section-title">Navigation</div>
-                    <a href="/dashboard" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
-                    <a href="/students" class="nav-item"><i class="fas fa-users"></i><span>Student Management</span></a>
-                    <a href="/manual-attendance" class="nav-item"><i class="fas fa-pen"></i><span>Manual
-                            Attendance</span></a>
-                    <a href="/mark-attendance" class="nav-item active"><i class="fas fa-camera"></i><span>Mark
-                            Attendance</span></a>
-                    <a href="/attendance" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Attendance
-                            Reports</span></a>
-                </div>
-            </div>
+        </div>
+        <div class="nav-menu">
+            <a href="/dashboard" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="/claims" class="nav-item"><i class="fas fa-file-invoice"></i><span>Claims</span></a>
+            <a href="/department-students" class="nav-item"><i class="fas fa-users"></i><span>Student
+                    Management</span></a>
+            <a href="/manual-attendance" class="nav-item"><i class="fas fa-pen"></i><span>Manual Attendance</span></a>
+            <a href="/mark-attendance" class="nav-item active"><i class="fas fa-camera"></i><span>Face
+                    Attendance</span></a>
+            <a href="/attendance" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Reports</span></a>
+        </div>
+        <div class="sidebar-footer">
             <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
     </div>
@@ -714,7 +659,7 @@
             <div class="stat-card">
                 <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
                 <div class="stat-content">
-                    <h4>Present Today</h4>
+                    <h4>Present (This Period)</h4>
                     <div class="stat-value" id="presentToday">0</div>
                 </div>
             </div>
@@ -786,13 +731,13 @@
             <div class="results-section">
                 <div class="results-card">
                     <div class="results-header">
-                        <h3><i class="fas fa-clipboard-list"></i> Today's Attendance</h3>
+                        <h3><i class="fas fa-clipboard-list"></i> Recent Attendance (This Period)</h3>
                         <span class="results-count" id="markedCount">0</span>
                     </div>
                     <div class="results-body" id="markedStudents">
                         <div class="empty-results">
                             <i class="fas fa-user-clock"></i>
-                            <p>No attendance marked yet today</p>
+                            <p>No attendance marked yet for this period</p>
                             <small class="text-muted">Start the camera to begin marking attendance</small>
                         </div>
                     </div>
@@ -816,7 +761,7 @@
         let isProcessing = false;
         let markedStudents = new Set();
         let recentMarks = [];
-        let recognitionInterval = 3000; // 3 seconds between recognition attempts
+        let recognitionInterval = 3000; // Capture a frame every 3 seconds
 
         // Set current date
         const today = new Date();
@@ -860,6 +805,12 @@
                     `;
                     document.getElementById('startBtn').disabled = true;
                 }
+                
+                // When we finish fetching available periods, reload the attendance for the selected one
+                loadTodayAttendance();
+                
+                // Re-fetch attendance whenever the selected period changes
+                select.addEventListener('change', loadTodayAttendance);
             } catch (e) { console.error('Error fetching taken periods:', e); }
         }
 
@@ -883,7 +834,8 @@
         async function loadTodayAttendance() {
             try {
                 const today = new Date().toISOString().split('T')[0];
-                const response = await fetch('/api/attendance/date?date=' + today);
+                const period = document.getElementById('periodSelect').value || '1';
+                const response = await fetch('/api/attendance/date?date=' + today + '&period=' + period);
                 if (!response.ok) throw new Error('Failed to fetch attendance');
 
                 const records = await response.json();
@@ -898,7 +850,7 @@
                 container.innerHTML = '';
 
                 if (records.length === 0) {
-                    container.innerHTML = '<div class="empty-results"><i class="fas fa-user-clock"></i><p>No attendance marked yet today</p><small class="text-muted">Start the camera to begin marking attendance</small></div>';
+                    container.innerHTML = '<div class="empty-results"><i class="fas fa-user-clock"></i><p>No attendance marked yet for this period</p><small class="text-muted">Start the camera to begin marking attendance</small></div>';
                 } else {
                     // Sort by time (most recent first)
                     records.sort((a, b) => new Date(b.time) - new Date(a.time));
@@ -981,7 +933,7 @@
 
         async function recognizeFace() {
             if (!isRunning || isProcessing) {
-                if (isRunning) {
+                if (isRunning && !isProcessing) {
                     recognitionTimeout = setTimeout(recognizeFace, recognitionInterval);
                 }
                 return;
@@ -994,15 +946,16 @@
                 return;
             }
 
-            // Show scanning overlay
-            document.getElementById('cameraOverlay').classList.add('active');
-
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
 
+            // Lower quality for array of 5 to save bandwidth
             const imageData = canvas.toDataURL('image/jpeg', 0.8);
+
+            document.getElementById('cameraOverlay').classList.add('active');
+            updateStatus('scanning', '🔄', 'Recognizing face', 'Identifying student...');
             isProcessing = true;
 
             try {
@@ -1036,7 +989,7 @@
 
                         if (data.already_marked) {
                             addMarkedStudent(student, true, true);
-                            updateStatus('warning', '⏰', 'Already Marked', student.name + ' was already marked today');
+                            updateStatus('warning', '⏰', 'Already Marked', student.name + ' was already marked for this period');
                         } else {
                             addMarkedStudent(student, false, true);
                             updateStatus('success', '✅', 'Attendance Marked!', student.name + ' has been marked present');
@@ -1151,7 +1104,7 @@
             document.getElementById('statusSubtext').textContent = subtext;
         }
 
-        function stopCamera() {
+        async function stopCamera() {
             isRunning = false;
 
             if (recognitionTimeout) {
@@ -1169,6 +1122,32 @@
             document.getElementById('cameraOverlay').classList.remove('active');
 
             updateStatus('idle', '📷', 'Camera is off', 'Click Start Camera to begin attendance marking');
+
+            // --- Added Finish Logic ---
+            try {
+                const period = document.getElementById('periodSelect').value;
+                updateStatus('info', '⏳', 'Finishing Session', 'Marking absent students and sending notifications...');
+
+                const response = await fetch('/api/attendance/finish', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ period: period })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    updateStatus('success', '✅', 'Session Finished', data.message);
+                    // Refresh attendance list to show absentees too if desired, 
+                    // or just refresh stats
+                    loadTodayStats();
+                    loadTodayAttendance();
+                } else {
+                    updateStatus('error', '❌', 'Finish Error', data.message);
+                }
+            } catch (err) {
+                console.error('Error finishing session:', err);
+                updateStatus('error', '❌', 'Finish Error', 'Failed to automate absent marking');
+            }
         }
 
         // Clean up on page unload

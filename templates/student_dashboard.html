@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_title }} - Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #7c3aed;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --sidebar-width: 280px;
+        }
+
+        body {
+            font-family: 'Outfit', 'Inter', sans-serif;
+            background: #f1f5f9;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--dark);
+            color: white;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-profile {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .profile-avatar {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: 800;
+            color: white;
+            margin: 0 auto 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-info h5 {
+            margin: 0;
+            font-weight: 700;
+            color: white;
+        }
+
+        .profile-info p {
+            margin: 5px 0 0;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu {
+            padding: 25px 15px;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            border-radius: 14px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: 700;
+            transition: all 0.3s;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .logout-btn:hover {
+            background: var(--danger);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .nav-item i {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 40px;
+        }
+
+        .welcome-section {
+            background: white;
+            border-radius: 28px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            margin-bottom: 35px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 20px;
+        }
+
+        .icon-blue {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+        }
+
+        .icon-green {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .icon-purple {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--secondary);
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            margin-bottom: 35px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 25px 30px;
+            font-weight: 800;
+            font-size: 19px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Period Tracker & History Grid */
+        .period-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            padding: 10px;
+        }
+
+        .period-box {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 22px;
+            text-align: center;
+            border: 2px solid #f1f5f9;
+            transition: all 0.3s;
+        }
+
+        .period-box.present {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+            transform: scale(1.02);
+        }
+
+        .period-box.absent {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .period-label {
+            font-size: 13px;
+            font-weight: 700;
+            opacity: 0.7;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .period-status {
+            font-size: 18px;
+            font-weight: 800;
+            display: block;
+        }
+
+        .period-marker {
+            font-size: 11px;
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        /* Visual History Row */
+        .history-row {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 15px;
+            border: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+
+        .history-row:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .history-date {
+            width: 180px;
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 16px;
+        }
+
+        .history-periods {
+            display: flex;
+            gap: 10px;
+            flex-grow: 1;
+            justify-content: flex-end;
+        }
+
+        .history-item {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            background: #f8fafc;
+            color: #94a3b8;
+            position: relative;
+            border: 2px solid #f1f5f9;
+            transition: all 0.2s;
+        }
+
+        .history-item.present {
+            background: #d1fae5;
+            color: #10b981;
+            border-color: #10b981;
+        }
+
+        .history-item.absent {
+            background: #fee2e2;
+            color: #ef4444;
+            border-color: #ef4444;
+        }
+
+        /* Tooltip */
+        .history-item:hover .item-tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(-10px);
+        }
+
+        .item-tooltip {
+            visibility: hidden;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(0);
+            background: var(--dark);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 12px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 100;
+            opacity: 0;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+            text-align: left;
+        }
+
+        .item-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--dark) transparent transparent transparent;
+        }
+
+        @media (max-width: 991px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .history-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .history-periods {
+                margin-top: 15px;
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-profile">
+            <div class="profile-avatar">{{ user_data.name[0] }}</div>
+            <div class="profile-info">
+                <h5>{{ user_data.name }}</h5>
+                <p>{{ user_data.department }} Dept</p>
+            </div>
+        </div>
+        <div class="nav-menu">
+            <a href="/dashboard" class="nav-item active"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="/claims" class="nav-item"><i class="fas fa-file-invoice"></i> My Claims</a>
+            <a href="/student-hub" class="nav-item"><i class="fas fa-chart-line"></i> Analytics</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/logout" class="logout-btn">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="welcome-section">
+            <div>
+                <h1 class="display-6 fw-bold mb-1">Hello, {{ user_data.name }}!</h1>
+                <p class="text-muted mb-0"><i class="fas fa-calendar-day me-2"></i> Today is {{ today }}</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-primary px-3 py-2 rounded-pill shadow-sm">
+                    {{ user_data.department }} Department
+                </span>
+            </div>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-icon icon-blue"><i class="fas fa-calendar-check"></i></div>
+                <div>
+                    <h6 class="text-muted small mb-1">Total Days</h6>
+                    <h3 class="fw-bold mb-0">{{ stats.total_days }}</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-green"><i class="fas fa-user-check"></i></div>
+                <div>
+                    <h6 class="text-muted small mb-1">Present Days</h6>
+                    <h3 class="fw-bold mb-0">{{ stats.present_days }}</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-purple"><i class="fas fa-chart-pie"></i></div>
+                <div>
+                    <h6 class="text-muted small mb-1">Attendance Rate</h6>
+                    <h3 class="fw-bold mb-0">{{ stats.percentage }}%</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span>Today's Live Status</span>
+                <span class="badge bg-light text-dark fw-normal" style="font-size: 13px;">6 Periods Total</span>
+            </div>
+            <div class="card-body">
+                <div class="period-grid" id="todayPeriodGrid">
+                    {% for p in range(1, 7) %}
+                    <div class="period-box" id="period-{{ p }}">
+                        <span class="period-label">PERIOD {{ p }}</span>
+                        <span class="period-status">Loading...</span>
+                        <div class="period-marker text-muted">Waiting...</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold mb-0">Attendance History</h4>
+            <div class="d-flex gap-3 align-items-center">
+                <label class="small text-muted mb-0">Filter Month:</label>
+                <select id="monthFilter" class="form-select form-select-sm"
+                    style="width: 170px; border-radius: 12px; cursor: pointer;">
+                    <option value="all">Every Month</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="historyRowsContainer">
+            <!-- Row items will be injected here -->
+            <div class="text-center py-5 text-muted">
+                <div class="spinner-border text-primary mb-3" role="status"></div>
+                <p>Loading your history...</p>
+            </div>
+        </div>
+
+        <div class="card mt-5">
+            <div class="card-header">Monthly Trend Analysis</div>
+            <div class="card-body">
+                <div style="height: 350px;">
+                    <canvas id="miniTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allHistoryRecords = [];
+
+        async function loadDashboardData() {
+            try {
+                // 1. Load History Data (This gets all records specifically for this student)
+                const hRes = await fetch('/api/attendance/student');
+                allHistoryRecords = await hRes.json();
+
+                // 2. Filter today's records for Live Status
+                const todayStr = new Date().toISOString().split('T')[0];
+                const todayRecords = allHistoryRecords.filter(r => r.date === todayStr);
+
+                for (let i = 1; i <= 6; i++) {
+                    const box = document.getElementById('period-' + i);
+                    const record = todayRecords.find(r => r.period == i);
+                    if (record) {
+                        box.className = 'period-box ' + record.status.toLowerCase();
+                        box.querySelector('.period-status').innerText = record.status;
+                        box.querySelector('.period-marker').innerHTML = `<i class="fas fa-user-edit me-1"></i> ${record.marked_by || 'System'}`;
+                    } else {
+                        box.querySelector('.period-status').innerText = 'Not Marked';
+                        box.querySelector('.period-marker').innerText = 'Waiting...';
+                    }
+                }
+
+                // Populate Filter
+                const months = [...new Set(allHistoryRecords.map(r => {
+                    const d = new Date(r.date);
+                    return d.toLocaleString('default', { month: 'long', year: 'numeric' });
+                }))];
+
+                const filter = document.getElementById('monthFilter');
+                months.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m; opt.innerText = m;
+                    filter.appendChild(opt);
+                });
+
+                filter.onchange = (e) => renderHistory(e.target.value);
+                renderHistory('all');
+
+                // 3. Load Monthly Chart
+                const cRes = await fetch('/api/attendance/student/monthly');
+                const monthlyData = await cRes.json();
+                const ctx = document.getElementById('miniTrendChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: monthlyData.map(d => d.month),
+                        datasets: [{
+                            label: 'Attendance %',
+                            data: monthlyData.map(d => d.percentage),
+                            backgroundColor: 'rgba(37, 99, 235, 0.5)',
+                            borderColor: '#2563eb',
+                            borderWidth: 1,
+                            borderRadius: 12
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, max: 100 } }
+                    }
+                });
+
+            } catch (e) { console.error("Error loading dashboard:", e); }
+        }
+
+        function renderHistory(monthVal) {
+            const container = document.getElementById('historyRowsContainer');
+
+            // Group by date
+            const grouped = allHistoryRecords.reduce((acc, rec) => {
+                const dateKey = rec.date;
+                if (!acc[dateKey]) acc[dateKey] = [];
+                acc[dateKey].push(rec);
+                return acc;
+            }, {});
+
+            let dates = Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a));
+
+            if (monthVal !== 'all') {
+                dates = dates.filter(date => {
+                    const d = new Date(date);
+                    return d.toLocaleString('default', { month: 'long', year: 'numeric' }) === monthVal;
+                });
+            }
+
+            if (dates.length === 0) {
+                container.innerHTML = '<div class="text-center py-5 text-muted card bg-white">No records found for this period.</div>';
+                return;
+            }
+
+            container.innerHTML = dates.map(date => {
+                const dayRecords = grouped[date];
+                let periodHtml = '';
+
+                for (let p = 1; p <= 6; p++) {
+                    const rec = dayRecords.find(r => r.period == p);
+                    const statusClass = rec ? rec.status.toLowerCase() : '';
+                    const tooltip = rec ? `
+                        <div class="item-tooltip">
+                            <span class="d-block fw-bold mb-1">Period ${p}</span>
+                            <span class="d-block mb-1">Status: ${rec.status}</span>
+                            <span class="d-block mb-1">Time: ${rec.time || 'N/A'}</span>
+                            <span class="d-block text-info">By: ${rec.marked_by || 'System'}</span>
+                        </div>
+                    ` : '<div class="item-tooltip">No Attendance Taken</div>';
+
+                    periodHtml += `
+                        <div class="history-item ${statusClass}">
+                            P${p}
+                            ${tooltip}
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="history-row">
+                        <div class="history-date">
+                            <i class="fas fa-calendar-alt text-primary opacity-50 me-2"></i>
+                            ${date.split('-').reverse().join('/')}
+                        </div>
+                        <div class="history-periods">
+                            ${periodHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDashboardData);
+    </script>
+</body>
+
+</html>

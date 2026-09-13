@@ -34,7 +34,7 @@ REPORTS_PATH = "attendance_reports/"
 
 # Face Recognition Settings - IMPROVED for better recognition
 FACE_DETECTION_CONFIDENCE = 0.4
-FACE_MATCH_THRESHOLD = 0.32  # Lower threshold = more lenient matching
+FACE_MATCH_THRESHOLD = 0.42  # Increased for better recognition (was 0.32)
 DEEPFACE_MODEL = 'Facenet'
 DEEPFACE_DETECTOR = 'opencv'
 

@@ -47,7 +47,7 @@ def format_date(date_str):
         date_obj = datetime.strptime(str(date_str), "%Y-%m-%d")
         return date_obj.strftime("%b %d, %Y")
     except:
-        return date_str
+        return str(date_str)
 
 
 def format_time(time_str):
@@ -56,7 +56,7 @@ def format_time(time_str):
         time_obj = datetime.strptime(str(time_str), "%H:%M:%S")
         return time_obj.strftime("%I:%M %p")
     except:
-        return time_str
+        return str(time_str)
 
 
 def generate_student_id():
