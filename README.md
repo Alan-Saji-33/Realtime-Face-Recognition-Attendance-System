@@ -8,6 +8,11 @@ The application integrates a graphical user interface built with modern UI frame
 
 The platform includes comprehensive administrative features such as student enrollment with facial registration, attendance record management, and data analytics capabilities. The system maintains persistent records of all attendance events, allowing administrators to generate reports, track attendance trends over time, and monitor student presence patterns. The attendance statistics dashboard displays real-time metrics including present and absent counts, with graphical visualizations of historical attendance data.
 
+## Screenshots
+
+![Dashboard Screenshot 1](https://i.ibb.co/20p4NSmR/Screenshot-2026-09-13-122323.png)
+![Dashboard Screenshot 2](https://i.ibb.co/0p6YP0SM/Screenshot-2026-09-13-122419.png)
+
 ## Detailed Features List
 
 ### 1. User Roles
