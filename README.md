@@ -8,42 +8,54 @@ The application integrates a graphical user interface built with modern UI frame
 
 The platform includes comprehensive administrative features such as student enrollment with facial registration, attendance record management, and data analytics capabilities. The system maintains persistent records of all attendance events, allowing administrators to generate reports, track attendance trends over time, and monitor student presence patterns. The attendance statistics dashboard displays real-time metrics including present and absent counts, with graphical visualizations of historical attendance data.
 
-## Features
+## Detailed Features List
 
 ### 1. User Roles
-- **Admin**: Full system access, can manage students, teachers, and all attendance
-- **Teacher**: Department-specific access, can mark attendance and view department students
-- **Student**: Can view their own attendance records
+- **Admin**: Full system access, can manage students, teachers, and all attendance records.
+- **Teacher**: Department-specific access, can mark attendance and view their respective department students.
+- **Student**: Portal access to view their own attendance records and statistics.
 
 ### 2. Student Management
-- Add new students with details (Student ID, Name, Roll No, Department, Year, Email, Phone)
-- Delete students
-- Register/Update face recognition for students
+- **Comprehensive Enrollment**: Add new students with detailed profiles including Student ID (auto-generated), Full Name, Roll Number, Department, Year, Email, and Phone.
+- **Login Credentials**: Ability to assign username and password for student portal access.
+- **Data Maintenance**: Update student details or delete records as needed.
+- **Facial Registration**: Dedicated module to register and update face recognition models for individual students.
 
 ### 3. Teacher Management
-- Add teachers with assigned department
-- Update teacher details
-- Delete teachers
+- **Teacher Onboarding**: Add teachers with specific usernames, passwords, names, and assigned departments.
+- **Record Updating**: Modify teacher details or remove teacher access as required.
 
 ### 4. Face Recognition
-- Capture face during student registration
-- Mark attendance by face recognition in real-time
-- Duplicate face detection to prevent fraud
+- **On-the-fly Capture**: Capture a student's face directly during the initial registration process.
+- **Subsequent Registration**: Register a face later using the integrated camera interface.
+- **Real-time Detection**: Live camera feed with a guide overlay for accurate positioning and immediate face detection.
+- **Anti-Fraud Mechanisms**: Duplicate face detection ensures the same face isn't registered to multiple students.
 
 ### 5. Attendance Marking
-- Automatic face-based attendance marking
-- Manual attendance marking by teachers/admin
-- Mark attendance for any date (past or present)
+- **Automated Marking**: Seamless, face-based automatic attendance logging.
+- **Manual Overrides**: Manual attendance marking capabilities for teachers and admins in case of technical issues.
+- **Flexible Logging**: Ability to mark attendance for any specific date, past or present, as Present or Absent.
 
-### 6. Attendance Reports & Dashboard
-- Filter by date, department, or status
-- Export to Excel (.xlsx format)
-- Overall attendance statistics, today's summary, and trend chart (last 7 days)
-- Department-wise and Student-wise statistics
+### 6. Attendance Reports
+- **Comprehensive Logs**: View all historical attendance records in a centralized dashboard.
+- **Advanced Filtering**: Filter attendance data by specific dates, departments, or attendance status (Present/Absent).
+- **Data Export**: Export filtered or complete attendance reports directly to Excel (.xlsx format) for external record-keeping.
 
-### 7. Security Features
-- Password hashing (SHA256)
-- Session management & Role-based access control
+### 7. Dashboard & Statistics
+- **Overall Metrics**: At-a-glance overall attendance statistics and today's attendance summary.
+- **Trend Analysis**: Visual attendance trend charts tracking data over the last 7 days.
+- **Granular Stats**: Drill down into department-wise and individual student-wise attendance statistics.
+
+### 8. Student Portal
+- **Self-Service Access**: Students can log in to view their own attendance history.
+- **Detailed Statistics**: View personal attendance metrics including total days, present days, and attendance percentage.
+- **Daily Status**: Quick check to see if they have been marked present for the current day.
+
+### 9. Security & Authentication
+- **Data Protection**: Secure password hashing using SHA256.
+- **Session Control**: Robust session management to handle user logins and timeouts securely.
+- **Access Control**: Role-based access control ensures users can only access authorized routes and data.
+- **Multiple Login Methods**: Support for traditional username/password login.
 
 ## Technology Stack
 - **Backend**: Python Flask
